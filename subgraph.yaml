@@ -1,0 +1,38 @@
+specVersion: 0.0.1
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: NFTMarket
+    network: mumbai
+    source:
+      address: "0xB2cF712F95986716089c01bc0E2EAeB717e48003"
+      abi: NFTMarket
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - AuctionCancelled
+        - AuctionCreated
+        - BidCreated
+        - OwnershipTransferred
+        - SaleCreated
+        - SellCancelled
+      abis:
+        - name: NFTMarket
+          file: ./abis/NFTMarket.json
+      eventHandlers:
+        - event: AuctionCancelled(indexed uint256)
+          handler: handleAuctionCancelled
+        - event: AuctionCreated(indexed uint256,uint256)
+          handler: handleAuctionCreated
+        - event: BidCreated(indexed uint256,indexed address,uint256)
+          handler: handleBidCreated
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: SaleCreated(indexed uint256,uint256)
+          handler: handleSaleCreated
+        - event: SellCancelled(indexed uint256)
+          handler: handleSellCancelled
+      file: ./src/mapping.ts
