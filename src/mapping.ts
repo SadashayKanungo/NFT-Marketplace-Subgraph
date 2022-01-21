@@ -1,66 +1,124 @@
-import { BigInt } from "@graphprotocol/graph-ts"
+import { store } from "@graphprotocol/graph-ts"
 import {
-  NFTMarket,
-  AuctionCancelled,
-  AuctionCreated,
-  BidCreated,
-  OwnershipTransferred,
-  SaleCreated,
-  SellCancelled
+    NFTMarket,
+    AuctionCancelled,
+    AuctionCreated,
+    BidCreated,
+    SaleCreated,
+    SellCancelled
 } from "../generated/NFTMarket/NFTMarket"
-import { ExampleEntity } from "../generated/schema"
 
-export function handleAuctionCancelled(event: AuctionCancelled): void {
-  // Entities can be loaded from the store using a string ID; this ID
-  // needs to be unique across all entities of the same type
-  let entity = ExampleEntity.load(event.transaction.from.toHex())
+import {
+    NFT,
+    TokenMinted,
+    Transfer
+} from "../generated/NFT/NFT"
 
-  // Entities only exist after they have been saved to the store;
-  // `null` checks allow to create entities on demand
-  if (!entity) {
-    entity = new ExampleEntity(event.transaction.from.toHex())
+import { User,Token,Sale,Bid,Auction } from "../generated/schema"
 
-    // Entity fields can be set using simple assignments
-    entity.count = BigInt.fromI32(0)
-  }
 
-  // BigInt and BigDecimal math are supported
-  entity.count = entity.count + BigInt.fromI32(1)
+export function handleTokenMinted(event: TokenMinted): void {
+    let user = User.load(event.params.owner.toHex())
 
-  // Entity fields can be set based on event parameters
-  entity.tokenId = event.params.tokenId
+    if (!user) {
+        user = new User(event.params.owner.toHex())
+    }
+    user.save()
 
-  // Entities can be written to the store with `.save()`
-  entity.save()
-
-  // Note: If a handler doesn't require existing field values, it is faster
-  // _not_ to load the entity from the store. Instead, create it fresh with
-  // `new Entity(...)`, set the fields that should be updated and save the
-  // entity back to the store. Fields that were not set or unset remain
-  // unchanged, allowing for partial updates to be applied.
-
-  // It is also possible to access smart contracts from mappings. For
-  // example, the contract that has emitted the event can be connected to
-  // with:
-  //
-  // let contract = Contract.bind(event.address)
-  //
-  // The following functions can then be called on this contract to access
-  // state variables and other data:
-  //
-  // - contract.marketPlaceOwner(...)
-  // - contract.minimunBidPer10000(...)
-  // - contract.owner(...)
-  // - contract.TokenAuctions(...)
-  // - contract.TokenSales(...)
+    let NFTcontract = NFT.bind(event.address)
+    
+    let token = new Token(event.params.tokenId.toString())
+    token.minter = event.params.owner.toHex()
+    token.owner = event.params.owner.toHex()
+    token.tokenId = event.params.tokenId
+    token.tokenURI = NFTcontract.tokenURI(event.params.tokenId)
+    token.metaURI = NFTcontract.getMetaDataURI(event.params.tokenId)
+    token.royaltyPercentage = NFTcontract.getRoyaltyPercentage(event.params.tokenId)
+    token.createdAtTimestamp = event.block.timestamp
+    
+    token.save()
 }
 
-export function handleAuctionCreated(event: AuctionCreated): void {}
+export function handleTransfer(event: Transfer): void {
+    let userTo = User.load(event.params.to.toHexString())
+    if(!userTo){
+        userTo = new User(event.params.to.toHexString())
+    }
 
-export function handleBidCreated(event: BidCreated): void {}
+    let token = Token.load(event.params.tokenId.toString())
+    if(!token){
+        let NFTcontract = NFT.bind(event.address)
 
-export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
+        token = new Token(event.params.tokenId.toString())
+        token.tokenId = event.params.tokenId
+        token.minter = NFTcontract.getOriginalMinter(event.params.tokenId).toHex()
+        //token.owner = NFTcontract.ownerOf(event.params.tokenId).toHex()
+        token.tokenURI = NFTcontract.tokenURI(event.params.tokenId)
+        token.metaURI = NFTcontract.getMetaDataURI(event.params.tokenId)
+        token.royaltyPercentage = NFTcontract.getRoyaltyPercentage(event.params.tokenId)
+        token.createdAtTimestamp = event.block.timestamp
+    }
+    token.owner = event.params.to.toHex()
+    token.save()
 
-export function handleSaleCreated(event: SaleCreated): void {}
+    // Removing Sale and Auction for this token
+    store.remove("Sale", event.params.tokenId.toString())
+    let auction = Auction.load(event.params.tokenId.toString())
+    if(!auction) return
 
-export function handleSellCancelled(event: SellCancelled): void {}
+    if(auction.bids){
+        auction.bids.map((bid) => {
+            store.remove("Bid", bid)
+        })
+    }
+    store.remove("Auction", event.params.tokenId.toString())
+}
+
+export function handleSaleCreated(event: SaleCreated): void {
+    let MarketContract = NFTMarket.bind(event.address)
+
+    let sale = new Sale(event.params.tokenId.toString())
+    sale.sellingPrice = event.params.sellingPrice
+    sale.token = event.params.tokenId.toString()
+    sale.seller = MarketContract.TokenSales(event.params.tokenId).value1.toHex()        //This Call to contract can be avoided if seller address is passed in event
+    sale.createdAtTimestamp = event.block.timestamp
+    sale.save()
+}
+
+export function handleSellCancelled(event: SellCancelled): void {
+    store.remove("Sale", event.params.tokenId.toString())
+}
+
+export function handleAuctionCreated(event: AuctionCreated): void {
+    let MarketContract = NFTMarket.bind(event.address)
+    const response = MarketContract.TokenAuctions(event.params.tokenId)                 //This Call to contract can be avoided if seller and expiry time address is passed in event
+
+    let auction = new Auction(event.params.tokenId.toString())
+    auction.startingPrice = event.params.startingPrice
+    auction.token = event.params.tokenId.toString()
+    auction.seller = response.value1.toHex()
+    auction.expiresAt = response.value3
+    auction.createdAtTimestamp = event.block.timestamp
+    auction.save()
+}
+
+export function handleAuctionCancelled(event: AuctionCancelled): void {
+    let auction = Auction.load(event.params.tokenId.toString())
+    if(!auction) return
+
+    if(auction.bids){
+        auction.bids.map((bid) => {
+            store.remove("Bid", bid)
+        })
+    }
+    store.remove("Auction", event.params.tokenId.toString())
+}
+
+export function handleBidCreated(event: BidCreated): void {
+    let bid = new Bid(event.params.tokenId.toString() + event.params.bidAmount.toString())
+    bid.bidder = event.params.bidder.toHex()
+    bid.bidPrice = event.params.bidAmount
+    bid.auction = event.params.tokenId.toString()
+    bid.createdAtTimestamp = event.block.timestamp
+    bid.save()
+}

@@ -1,5 +1,46 @@
-type ExampleEntity @entity {
+type User @entity {
   id: ID!
-  count: BigInt!
-  tokenId: BigInt! # uint256
+  Creations: [Token!] @derivedFrom(field: "minter")
+  Tokens: [Token!] @derivedFrom(field: "owner")
+  Sales: [Sale!] @derivedFrom(field: "seller")
+  Auctions: [Auction!] @derivedFrom(field: "seller")
+  Bids: [Bid!] @derivedFrom(field: "bidder")
+}
+
+type Token @entity {
+  id: ID!
+  tokenId: BigInt!
+  tokenURI: String!
+  metaURI: String!
+  royaltyPercentage: BigInt!
+  minter: User!
+  owner: User!
+  createdAtTimestamp: BigInt!
+}
+
+type Sale @entity {
+  id: ID!
+  token: Token!
+  seller: User!
+  sellingPrice: BigInt!
+  createdAtTimestamp: BigInt!
+}
+
+type Bid @entity{
+  id: ID!
+  auction: Auction!
+  bidder: User!
+  bidPrice: BigInt!
+  createdAtTimestamp: BigInt!
+}
+
+type Auction @entity {
+  id: ID!
+  token: Token!
+  seller: User!
+  startingPrice: BigInt!
+  currentBid: Bid
+  bids: [Bid!] @derivedFrom(field: "auction")
+  expiresAt: BigInt!
+  createdAtTimestamp: BigInt!
 }
