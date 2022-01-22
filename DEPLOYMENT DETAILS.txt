@@ -8,6 +8,11 @@ Token: 0x2cFc00bb373c3D1D03D8341494e46ac8Cb914629
 NFT: 0x4Aa7D7389Eba5cE81A1c65760f518e7357Fade0c
 NFT Marketplace: 0xB2cF712F95986716089c01bc0E2EAeB717e48003
 
+UPDATED Mkt Contract Deployed on Polygon Mumbai Testnet
+Token: 0x80C8dDCe5D7455f834675538D41c0F4426d2Dc37
+NFT: 0xd17a37Ea3aB1b0E8bF38efb628811e35e1DE4308
+NFT Marketplace: 0x27c252d4568Ada718Df1D6E2801AA7DE47A5bE45
+
 Deployed Subgraph endpoints:
 Queries (HTTP):     https://api.thegraph.com/subgraphs/name/sadashaykanungo/nft-market-app
 Subscriptions (WS): wss://api.thegraph.com/subgraphs/name/sadashaykanungo/nft-market-app
