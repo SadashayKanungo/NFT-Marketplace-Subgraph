@@ -1,0 +1,13 @@
+Deployed on BSC Testnet
+Token: 0x2cFc00bb373c3D1D03D8341494e46ac8Cb914629
+NFT: 0x4Aa7D7389Eba5cE81A1c65760f518e7357Fade0c
+NFT Marketplace: 0xB2cF712F95986716089c01bc0E2EAeB717e48003
+
+Deployed on Polygon Mumbai Testnet
+Token: 0x2cFc00bb373c3D1D03D8341494e46ac8Cb914629
+NFT: 0x4Aa7D7389Eba5cE81A1c65760f518e7357Fade0c
+NFT Marketplace: 0xB2cF712F95986716089c01bc0E2EAeB717e48003
+
+Deployed Subgraph endpoints:
+Queries (HTTP):     https://api.thegraph.com/subgraphs/name/sadashaykanungo/nft-market-app
+Subscriptions (WS): wss://api.thegraph.com/subgraphs/name/sadashaykanungo/nft-market-app

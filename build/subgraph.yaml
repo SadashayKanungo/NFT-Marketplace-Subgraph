@@ -6,9 +6,9 @@ dataSources:
     name: NFT
     network: mumbai
     source:
-      address: "0x4Aa7D7389Eba5cE81A1c65760f518e7357Fade0c"
+      address: "0xd17a37Ea3aB1b0E8bF38efb628811e35e1DE4308"
       abi: NFT
-      startBlock: 24117177
+      startBlock: 24155227
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -23,16 +23,14 @@ dataSources:
       eventHandlers:
         - event: TokenMinted(address,uint256)
           handler: handleTokenMinted
-        - event: Transfer(indexed address,indexed address,indexed uint256)
-          handler: handleTransfer
       file: NFT\NFT.wasm
   - kind: ethereum
     name: NFTMarket
     network: mumbai
     source:
-      address: "0xB2cF712F95986716089c01bc0E2EAeB717e48003"
+      address: "0x27c252d4568Ada718Df1D6E2801AA7DE47A5bE45"
       abi: NFTMarket
-      startBlock: 24117185
+      startBlock: 24155234
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -47,12 +45,16 @@ dataSources:
       eventHandlers:
         - event: AuctionCancelled(indexed uint256)
           handler: handleAuctionCancelled
-        - event: AuctionCreated(indexed uint256,uint256)
+        - event: AuctionCreated(indexed uint256,address,uint256,uint256)
           handler: handleAuctionCreated
         - event: BidCreated(indexed uint256,indexed address,uint256)
           handler: handleBidCreated
-        - event: SaleCreated(indexed uint256,uint256)
+        - event: SaleCreated(indexed uint256,address,uint256)
           handler: handleSaleCreated
         - event: SellCancelled(indexed uint256)
           handler: handleSellCancelled
+        - event: SaleEnded(indexed uint256,address,uint256)
+          handler: handleSaleEnded
+        - event: AuctionEnded(indexed uint256,address,uint256)
+          handler: handleAuctionEnded
       file: NFT\NFT.wasm

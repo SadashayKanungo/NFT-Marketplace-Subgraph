@@ -45,8 +45,42 @@ export class AuctionCreated__Params {
     return this._event.parameters[0].value.toBigInt();
   }
 
+  get seller(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
   get startingPrice(): BigInt {
-    return this._event.parameters[1].value.toBigInt();
+    return this._event.parameters[2].value.toBigInt();
+  }
+
+  get expiresAt(): BigInt {
+    return this._event.parameters[3].value.toBigInt();
+  }
+}
+
+export class AuctionEnded extends ethereum.Event {
+  get params(): AuctionEnded__Params {
+    return new AuctionEnded__Params(this);
+  }
+}
+
+export class AuctionEnded__Params {
+  _event: AuctionEnded;
+
+  constructor(event: AuctionEnded) {
+    this._event = event;
+  }
+
+  get tokenId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get to(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get price(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
   }
 }
 
@@ -115,8 +149,38 @@ export class SaleCreated__Params {
     return this._event.parameters[0].value.toBigInt();
   }
 
+  get seller(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
   get sellingPrice(): BigInt {
-    return this._event.parameters[1].value.toBigInt();
+    return this._event.parameters[2].value.toBigInt();
+  }
+}
+
+export class SaleEnded extends ethereum.Event {
+  get params(): SaleEnded__Params {
+    return new SaleEnded__Params(this);
+  }
+}
+
+export class SaleEnded__Params {
+  _event: SaleEnded;
+
+  constructor(event: SaleEnded) {
+    this._event = event;
+  }
+
+  get tokenId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get to(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get price(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
   }
 }
 
@@ -211,67 +275,6 @@ export class NFTMarket extends ethereum.SmartContract {
     return new NFTMarket("NFTMarket", address);
   }
 
-  marketPlaceOwner(): Address {
-    let result = super.call(
-      "marketPlaceOwner",
-      "marketPlaceOwner():(address)",
-      []
-    );
-
-    return result[0].toAddress();
-  }
-
-  try_marketPlaceOwner(): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "marketPlaceOwner",
-      "marketPlaceOwner():(address)",
-      []
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  minimunBidPer10000(): BigInt {
-    let result = super.call(
-      "minimunBidPer10000",
-      "minimunBidPer10000():(uint256)",
-      []
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_minimunBidPer10000(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "minimunBidPer10000",
-      "minimunBidPer10000():(uint256)",
-      []
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  owner(): Address {
-    let result = super.call("owner", "owner():(address)", []);
-
-    return result[0].toAddress();
-  }
-
-  try_owner(): ethereum.CallResult<Address> {
-    let result = super.tryCall("owner", "owner():(address)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
   TokenAuctions(param0: BigInt): NFTMarket__TokenAuctionsResult {
     let result = super.call(
       "TokenAuctions",
@@ -350,6 +353,67 @@ export class NFTMarket extends ethereum.SmartContract {
         value[3].toBoolean()
       )
     );
+  }
+
+  marketPlaceOwner(): Address {
+    let result = super.call(
+      "marketPlaceOwner",
+      "marketPlaceOwner():(address)",
+      []
+    );
+
+    return result[0].toAddress();
+  }
+
+  try_marketPlaceOwner(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "marketPlaceOwner",
+      "marketPlaceOwner():(address)",
+      []
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
+  minimunBidPer10000(): BigInt {
+    let result = super.call(
+      "minimunBidPer10000",
+      "minimunBidPer10000():(uint256)",
+      []
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_minimunBidPer10000(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "minimunBidPer10000",
+      "minimunBidPer10000():(uint256)",
+      []
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  owner(): Address {
+    let result = super.call("owner", "owner():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_owner(): ethereum.CallResult<Address> {
+    let result = super.tryCall("owner", "owner():(address)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 }
 
